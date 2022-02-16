@@ -1,4 +1,5 @@
 import React from "react";
+import Card from "../components/Card";
 
 class Popular extends React.Component {
   constructor() {
@@ -20,7 +21,20 @@ class Popular extends React.Component {
   
   render() {
     return (
-      <h1>Popular</h1>
+      <div>
+        <h1>Popular</h1>
+        {this.state.movies.map((movie)=>{
+          
+          return (
+            <Card 
+              image={`https://image.tmdb.org/t/p/w300/${movie.poster_path}`}
+              title={movie.title}
+              key={movie.id}
+            />
+          );
+        })}
+
+      </div>
     );
   }
 }
