@@ -1,37 +1,93 @@
 import React from "react";
 import Card from "../components/Card";
+import Paginator from "../components/Paginator";
+
 
 class Popular extends React.Component {
   constructor() {
     super();
 
-    this.state={
+    this.state = {
       movies: [],
+      currentPage: 1,
+    };
+
+    this.handlePaginatorClick = this.handlePaginatorClick.bind(this);
+    this.currentPages = this.currentPages.bind(this);
+  }
+  //shows current pages in paginator
+  currentPages() {
+    if (parseInt(this.state.currentPage) >= 998) {
+      return { p1: "<", p2: "998", p3: "999", p4: "1000" };
+    } else if (parseInt(this.state.currentPage) <= 3) {
+      return { p1: "1", p2: "2", p3: "3", p4: ">" };
+    } else {
+      return {
+        p1: "<",
+        p2: this.state.currentPage,
+        p3: parseInt(this.state.currentPage) + 1,
+        p4: ">",
+      };
     }
+    
   }
 
-  componentDidMount() {
-    fetch("https://api.themoviedb.org/3/discover/movie?sort_by=popularity.desc&api_key=9f8016c7182a43a9d6ff4befd6445c3c")
-      .then((res)=> res.json())
-      .then((res)=>{
-        this.setState({movies: res.results});
-      })
+  handlePaginatorClick(p) {
+    switch (p) {
+      case "<":
+        this.setState((prevState) => {
+          return { currentPage: parseInt(prevState.currentPage) - 2 };
+        });
+        break;
+      case ">":
+        if (parseInt(this.state.currentPage) <= 3) {
+          this.setState({currentPage: 4});
+        } else {
+          this.setState((prevState) => {
+            return { currentPage: parseInt(prevState.currentPage) + 2 };
+          });
+        }
+        break;
+      default: 
+        this.setState({currentPage: p})
+    }
+    console.log(this.state.currentPage, p);
   }
+
   
+  componentDidMount() {
+    fetch(
+      "https://api.themoviedb.org/3/discover/movie?sort_by=popularity.desc&page=2&api_key=9f8016c7182a43a9d6ff4befd6445c3c"
+    )
+      .then((res) => res.json())
+      .then((res) => {
+        this.setState({ movies: res.results });
+      });
+  }
+
   render() {
+    //shows current pages in the paginator (...|4|5|6|... etc)
+    const { p1, p2, p3, p4 } = this.currentPages();
     return (
       <div>
         <h1>Popular</h1>
-        {this.state.movies.map((movie)=> {
+        {this.state.movies.map((movie) => {
           return (
-            <Card 
+            <Card
               image={`https://image.tmdb.org/t/p/w300/${movie.poster_path}`}
               title={movie.title}
               key={movie.id}
             />
           );
         })}
-
+        <Paginator
+          onClick={this.handlePaginatorClick}
+          currentPage={this.state.currentPage}
+          p1={p1}
+          p2={p2}
+          p3={p3}
+          p4={p4}
+        />
       </div>
     );
   }

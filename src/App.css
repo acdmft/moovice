@@ -39,3 +39,8 @@
 .film-poster {
   width: 4rem;
 }
+.paginator span:hover {
+  cursor: pointer;
+  color: rgb(218, 134, 134);
+
+}
