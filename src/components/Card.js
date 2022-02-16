@@ -4,7 +4,7 @@ class Card extends React.Component {
   render() {
    
     return (
-      <div>
+      <div onClick={()=> {this.props.onClick(this.props.id)}}>
         <img className="film-poster" src={this.props.image} alt="poster"></img>
         <h2>{this.props.title}</h2>
         <p>{this.props.year}</p>
