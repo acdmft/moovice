@@ -12,6 +12,7 @@ class Popular extends React.Component {
       currentPage: 1,
     };
 
+    this.fetchMovies = this.fetchMovies.bind(this);
     this.handlePaginatorClick = this.handlePaginatorClick.bind(this);
     this.currentPages = this.currentPages.bind(this);
   }
@@ -33,36 +34,42 @@ class Popular extends React.Component {
   }
 
   handlePaginatorClick(p) {
-    switch (p) {
-      case "<":
-        this.setState((prevState) => {
-          return { currentPage: parseInt(prevState.currentPage) - 2 };
-        });
-        break;
-      case ">":
-        if (parseInt(this.state.currentPage) <= 3) {
-          this.setState({currentPage: 4});
-        } else {
+    if (parseInt(p) !== this.state.currentPage) {
+      switch (p) {
+        case "<":
           this.setState((prevState) => {
-            return { currentPage: parseInt(prevState.currentPage) + 2 };
+            return { currentPage: parseInt(prevState.currentPage) - 2 };
           });
-        }
-        break;
-      default: 
-        this.setState({currentPage: p})
+          break;
+        case ">":
+          if (parseInt(this.state.currentPage) <= 3) {
+            this.setState({currentPage: 4});
+          } else {
+            this.setState((prevState) => {
+              return { currentPage: parseInt(prevState.currentPage) + 2 };
+            });
+          }
+          break;
+        default: 
+          this.setState({currentPage: p})
+      }
+      this.fetchMovies(p);
     }
     console.log(this.state.currentPage, p);
   }
 
-  
-  componentDidMount() {
+  fetchMovies(page) {
     fetch(
-      "https://api.themoviedb.org/3/discover/movie?sort_by=popularity.desc&page=2&api_key=9f8016c7182a43a9d6ff4befd6445c3c"
+      `https://api.themoviedb.org/3/discover/movie?sort_by=popularity.desc&page=${page}&api_key=9f8016c7182a43a9d6ff4befd6445c3c`
     )
       .then((res) => res.json())
       .then((res) => {
         this.setState({ movies: res.results });
       });
+  }
+
+  componentDidMount() {
+    this.fetchMovies(this.state.currentPage);
   }
 
   render() {
