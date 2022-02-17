@@ -1,6 +1,8 @@
 import React from "react";
 import Card from "../components/Card";
 
+let twoPopularMovies = [];
+
 class PopularBattle extends React.Component {
   constructor() {
     super();
@@ -14,25 +16,22 @@ class PopularBattle extends React.Component {
   }
 
   handleCardClick(id) {
-    switch (this.state.currentBattle) {
-      case 0:
-        localStorage.setItem("favorites", id);
-        this.setState((prevState)=>{
-          return {currentBattle: prevState.currentBattle + 1}
-        });
-        break;
-      case 1:
-        let favFilm = localStorage.getItem("favorites");
-        //if user want to add the film that is not already added
-        if (favFilm !== id.toString()) {
-          let favFilms = new Array(favFilm, id);
-          localStorage.setItem("favorites", favFilms);
-          // increase currentBattle
-          this.setState((prevState)=>{
-            return {currentBattle: prevState.currentBattle + 1}
-          })
+    if (this.state.currentBattle <= this.state.movies.length -2 ) {
+      // Add 1 to currentBattle
+      this.setState((prevState)=> {
+        return {currentBattle: prevState.currentBattle + 2};
+      });
+      // Add selected film in LocalStorage
+      let addedFilms = localStorage.getItem("favorites");
+      if (addedFilms) {
+        addedFilms = addedFilms.split(',');
+        if (!addedFilms.includes(id)) {
+          addedFilms.push(id);
+          localStorage.setItem("favorites", addedFilms);
         }
-        break;
+      } else {
+        localStorage.setItem("favorites",id);
+      }
     }
   }
 
@@ -42,12 +41,14 @@ class PopularBattle extends React.Component {
       case 0:
         return null;
         break;
-      case 1: 
-        return (<div>Vous avez ajouté un film!</div>)
+      case (this.state.movies.length):
+        return (<h2>Vous avez parcouru tous les films !</h2>)
         break;
-      case 2:
-        return (<div>Vous avez parcouru tous les films !</div>)
-        break;
+      default:
+        let numOfAddedFilms = localStorage.getItem('favorites');
+        numOfAddedFilms = numOfAddedFilms ? numOfAddedFilms.split(',').length : 0;
+        return(<h2>{`Vous avez ajoutez ${numOfAddedFilms} films`}</h2>);
+      
     }
   }
   
@@ -55,18 +56,17 @@ class PopularBattle extends React.Component {
     fetch("https://api.themoviedb.org/3/discover/movie?sort_by=popularity.desc&api_key=9f8016c7182a43a9d6ff4befd6445c3c")
       .then((res)=> res.json())
       .then((res)=>{
-        let twoPopularMovies = res.results.splice(0,2);
-        this.setState({movies: twoPopularMovies});
-        console.log(this.state.movies)
+        this.setState({movies: res.results});
       })
   }
   
   render() {
+    twoPopularMovies = this.state.movies.slice(this.state.currentBattle,this.state.currentBattle + 2);
     return (
       <>
         <h1>Popular Battle</h1>
         <div>
-          {this.state.movies.map((movie)=> {
+          {twoPopularMovies.map((movie)=> {
             return (
               <Card 
                 onClick={this.handleCardClick}
